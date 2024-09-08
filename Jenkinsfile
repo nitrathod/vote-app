@@ -18,12 +18,13 @@ pipeline {
         }
         stage('BUILDING DOCKER IMAGE') {
             steps {
-                sh '''
-                cd vote
-                docker build -t $DOCKER_IMAGE .
-                docker login --username=rnitintech0712 --password=Nitin71990#
-                docker push $DOCKER_IMAGE
-                '''
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh '''
+                    cd vote
+                    docker build -t $DOCKER_IMAGE .
+                    echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+                    docker push $DOCKER_IMAGE
+                    '''
                 }
             }
         }
@@ -45,7 +46,8 @@ pipeline {
                 }
             }
         }
-        post {
+    }
+    post {
         always {
             sh '''
             # Stop Minikube after deployment (optional)
