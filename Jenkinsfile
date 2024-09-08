@@ -15,7 +15,7 @@ pipeline{
             steps {
                 script{
                     sh '''
-                    kubectl set image deployment/vote vote=rnitintech0712/vote:v${BUILD_NUMBER}
+                    kubectl set image deployment/vote vote=rnitintech0712/vote:${BUILD_NUMBER}
                     '''
                 }
             }
