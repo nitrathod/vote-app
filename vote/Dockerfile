@@ -1,30 +1,19 @@
-# Define a base stage that uses the official python runtime base image
-FROM python:3.11-slim AS base
+# Use the official Python image from the Docker Hub
+FROM python:latest
 
-# Add curl for healthcheck
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/*
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Set the application directory
-WORKDIR /usr/local/app
+# Set the working directory in the container
+WORKDIR /vote
 
-# Install our requirements.txt
-COPY requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies
+COPY requirements.txt /vote/
+RUN pip install -r requirements.txt
 
-# Define a stage specifically for development, where it'll watch for
-# filesystem changes
-FROM base AS dev
-RUN pip install watchdog
-ENV FLASK_ENV=development
-CMD ["python", "app.py"]
-
-# Define the final stage that will bundle the application for production
-FROM base AS final
-
-# Copy our code from the current folder to the working directory inside the container
-COPY . .
+# Copy the Django project into the container
+COPY . /vote/
 
 # Make port 80 available for links and/or publish
 EXPOSE 80
