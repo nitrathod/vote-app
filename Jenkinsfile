@@ -2,8 +2,20 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = "rnitintech0712/vote:v${BUILD_NUMBER}"
+        KUBECONFIG = "$HOME/.kube/config" // Ensure that KUBECONFIG is set properly
     }
     stages {
+        stage('Start Minikube') {
+            steps {
+                sh '''
+                # Start Minikube if it's not running
+                minikube status || minikube start
+                
+                # Ensure kubectl is set to use the Minikube context
+                kubectl config use-context minikube
+                '''
+            }
+        }
         stage('BUILDING DOCKER IMAGE') {
             steps {
                 sh '''
@@ -12,6 +24,7 @@ pipeline {
                 docker login --username=rnitintech0712 --password=Nitin71990#
                 docker push $DOCKER_IMAGE
                 '''
+                }
             }
         }
         stage('Install kubectl') {
@@ -31,6 +44,14 @@ pipeline {
                     '''
                 }
             }
+        }
+    }
+    post {
+        always {
+            sh '''
+            # Stop Minikube after deployment (optional)
+            minikube stop
+            '''
         }
     }
 }
