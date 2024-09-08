@@ -45,8 +45,7 @@ pipeline {
                 }
             }
         }
-    }
-    post {
+        post {
         always {
             sh '''
             # Stop Minikube after deployment (optional)
@@ -54,3 +53,4 @@ pipeline {
             '''
         }
     }
+}
